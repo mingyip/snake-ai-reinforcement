@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pandas as pd
 
-from .entities import Snake, Field, CellType, SnakeAction, ALL_SNAKE_ACTIONS
+from .entities import Snake, Field, CellType, SnakeAction, ALL_SNAKE_ACTIONS, Point
 
 
 class Environment(object):
@@ -25,6 +25,8 @@ class Environment(object):
                 1 = write a CSV file containing the statistics for every episode;
                 2 = same as 1, but also write a full log file containing the state of each timestep.
         """
+        #foodspeed=0 > no movement, else moves every x timestep
+        self.foodspeed = 0 
         self.field = Field(level_map=config['field'])
         self.snake = None
         self.fruit = None
@@ -164,6 +166,8 @@ class Environment(object):
         )
 
         self.record_timestep_stats(result)
+        if self.foodspeed!=0 and self.timestep_index%self.foodspeed==0:
+            self.move_fruit()
         return result
 
     def generate_fruit(self, position=None):
@@ -172,6 +176,21 @@ class Environment(object):
             position = self.field.get_random_empty_cell()
         self.field[position] = CellType.FRUIT
         self.fruit = position
+
+    def move_fruit(self):
+        position=self.fruit
+        neighbours=[position-Point(0, -1),position-Point(0, 1),position-Point(1, 0),position-Point(-1, 0)]
+        empty_neighbours=[]
+        for i in neighbours:
+            if self.field[i]==CellType.EMPTY:
+                empty_neighbours.append(i)
+
+        if empty_neighbours:
+            self.field[position] = CellType.EMPTY
+            position=random.choice(empty_neighbours)
+            self.generate_fruit(position)
+
+
 
     def has_hit_wall(self):
         """ True if the snake has hit a wall, False otherwise. """
