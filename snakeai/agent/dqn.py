@@ -107,7 +107,7 @@ class DeepQNetworkAgent(AgentBase):
                 state = state_next
 
                 # Sample a random batch from experience.
-                batch = self.memory.get_dqn_batch(
+                batch = self.memory.get_batch(
                     model=self.model,
                     batch_size=batch_size,
                     discount_factor=discount_factor
