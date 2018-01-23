@@ -47,7 +47,7 @@ class ExperienceReplay(object):
         if 0 < self.memory_size < len(self.memory):
             self.memory.popleft()
 
-    def get_dqn_batch(self, model, batch_size, discount_factor=0.9):
+    def get_batch(self, model, batch_size, discount_factor=0.9):
         """ Sample a batch from experience replay. """
 
         batch_size = min(len(self.memory), batch_size)
