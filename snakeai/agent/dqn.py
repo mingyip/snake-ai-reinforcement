@@ -1,6 +1,7 @@
 import collections
 import numpy as np
 import time
+import os
 
 from snakeai.agent import AgentBase
 from snakeai.utils.memory import ExperienceReplay
@@ -9,7 +10,7 @@ from contextlib import redirect_stdout
 class DeepQNetworkAgent(AgentBase):
     """ Represents a Snake agent powered by DQN with experience replay. """
 
-    def __init__(self, model, num_last_frames=4, memory_size=1000):
+    def __init__(self, model, num_last_frames=4, memory_size=1000, output="."):
         """
         Create a new DQN-based agent.
         
@@ -17,6 +18,7 @@ class DeepQNetworkAgent(AgentBase):
             model: a compiled DQN model.
             num_last_frames (int): the number of last frames the agent will consider.
             memory_size (int): memory size limit for experience replay (-1 for unlimited). 
+            output (str): folder path to output model files.
         """
         assert model.input_shape[1] == num_last_frames, 'Model input shape should be (num_frames, grid_size, grid_size)'
         assert len(model.output_shape) == 2, 'Model output shape should be (num_samples, num_actions)'
@@ -25,6 +27,7 @@ class DeepQNetworkAgent(AgentBase):
         self.num_last_frames = num_last_frames
         self.memory = ExperienceReplay((num_last_frames,) + model.input_shape[-2:], model.output_shape[-1], memory_size)
         self.frames = None
+        self.output = output
 
     def begin_episode(self):
         """ Reset the agent for a new episode. """
@@ -120,7 +123,7 @@ class DeepQNetworkAgent(AgentBase):
                     loss += float(self.model.train_on_batch(inputs, targets))
 
             if checkpoint_freq and (episode % checkpoint_freq) == 0:
-                self.model.save(f'dqn-{episode:08d}.model')
+                self.model.save(f'{self.output}/dqn-{episode:08d}.model')
 
             if exploration_rate > min_exploration_rate:
                 exploration_rate -= exploration_decay
@@ -131,14 +134,15 @@ class DeepQNetworkAgent(AgentBase):
                 episode + 1, num_episodes, loss, exploration_rate,
                 env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
             ))
-            with open('log'+str(timestamp)+'.txt', 'a') as f:
+            with open(f'{self.output}/training-log.txt', 'a') as f:
                 with redirect_stdout(f):
                     print(summary.format(
                         episode + 1, num_episodes, loss, exploration_rate,
                          env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
                     ))
-        f.close()
-        self.model.save('dqn-final.model')
+            f.close()
+
+        self.model.save(f'{self.output}/dqn-final.model')
 
     def act(self, observation, reward):
         """

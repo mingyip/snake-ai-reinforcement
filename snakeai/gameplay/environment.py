@@ -1,6 +1,7 @@
 import pprint
 import random
 import time
+import os
 
 import numpy as np
 import pandas as pd
@@ -14,12 +15,13 @@ class Environment(object):
     provides rewards for the agent and keeps track of game statistics.
     """
 
-    def __init__(self, config, verbose=1):
+    def __init__(self, config, output=".", verbose=1):
         """
         Create a new Snake RL environment.
         
         Args:
-            config (dict): level configuration, typically found in JSON configs.  
+            config (dict): level configuration, typically found in JSON configs. 
+            output (str): folder path to output csv files.
             verbose (int): verbosity level:
                 0 = do not write any debug information;
                 1 = write a CSV file containing the statistics for every episode;
@@ -34,6 +36,7 @@ class Environment(object):
         self.rewards = config['rewards']
         self.max_step_limit = config.get('max_step_limit', 1000)
         self.is_game_over = False
+        self.output = output
 
         self.timestep_index = 0
         self.current_action = None
@@ -84,13 +87,13 @@ class Environment(object):
 
         # Write CSV header for the stats file.
         if self.verbose >= 1 and self.stats_file is None:
-            self.stats_file = open(f'snake-env-{timestamp}.csv', 'w')
+            self.stats_file = open(f'{self.output}/snake-env.csv', 'w')
             stats_csv_header_line = self.stats.to_dataframe()[:0].to_csv(index=None)
             print(stats_csv_header_line, file=self.stats_file, end='', flush=True)
 
         # Create a blank debug log file.
         if self.verbose >= 2 and self.debug_file is None:
-            self.debug_file = open(f'snake-env-{timestamp}.log', 'w')
+            self.debug_file = open(f'{self.output}/snake-env.log', 'w')
 
         self.stats.record_timestep(self.current_action, result)
         self.stats.timesteps_survived = self.timestep_index

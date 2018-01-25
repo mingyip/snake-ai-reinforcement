@@ -2,8 +2,10 @@
 
 """ Front-end script for training a Snake agent. """
 
+import time
 import json
 import sys
+import os
 
 from keras.models import Sequential
 from keras.layers import *
@@ -39,13 +41,13 @@ def parse_command_line_args(args):
     return parser.parse_args(args)
 
 
-def create_snake_environment(level_filename):
+def create_snake_environment(level_filename, output):
     """ Create a new Snake environment from the config file. """
 
     with open(level_filename) as cfg:
         env_config = json.load(cfg)
 
-    return Environment(config=env_config, verbose=1)
+    return Environment(config=env_config, output=output, verbose=1)
 
 
 def create_dqn_model(env, num_last_frames):
@@ -92,15 +94,22 @@ def create_dqn_model(env, num_last_frames):
 
 
 def main():
+    # Create a folder for data output.
+    timestamp = time.strftime('%Y%m%d-%H%M%S')
+    output_path = os.path.join('outputs', str(timestamp))
+    os.makedirs(output_path)
+
     parsed_args = parse_command_line_args(sys.argv[1:])
 
-    env = create_snake_environment(parsed_args.level)
+    env = create_snake_environment(parsed_args.level, output_path)
     model = create_dqn_model(env, num_last_frames=4)
+
 
     agent = DeepQNetworkAgent(
         model=model,
         memory_size=-1,
-        num_last_frames=model.input_shape[1]
+        num_last_frames=model.input_shape[1],
+        output=output_path
     )
     agent.train(
         env,
