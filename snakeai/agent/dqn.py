@@ -1,9 +1,10 @@
 import collections
 import numpy as np
+import time
 
 from snakeai.agent import AgentBase
 from snakeai.utils.memory import ExperienceReplay
-
+from contextlib import redirect_stdout
 
 class DeepQNetworkAgent(AgentBase):
     """ Represents a Snake agent powered by DQN with experience replay. """
@@ -48,7 +49,7 @@ class DeepQNetworkAgent(AgentBase):
         return np.expand_dims(self.frames, 0)
 
     def train(self, env, num_episodes=1000, batch_size=50, discount_factor=0.9, checkpoint_freq=None,
-              exploration_range=(1.0, 0.1), exploration_phase_size=0.5):
+              exploration_range=(1.0,0.1), exploration_phase_size=0.5):         #exploration_range=(1.0, 0.1) noisy net
         """
         Train the agent to perform well in the given Snake environment.
         
@@ -69,6 +70,7 @@ class DeepQNetworkAgent(AgentBase):
                 the percentage of the training process at which
                 the exploration rate should reach its minimum.
         """
+        timestamp = time.strftime('%Y%m%d-%H%M%S')
 
         # Calculate the constant exploration decay speed for each episode.
         max_exploration_rate, min_exploration_rate = exploration_range
@@ -129,7 +131,13 @@ class DeepQNetworkAgent(AgentBase):
                 episode + 1, num_episodes, loss, exploration_rate,
                 env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
             ))
-
+            with open('log'+str(timestamp)+'.txt', 'a') as f:
+                with redirect_stdout(f):
+                    print(summary.format(
+                        episode + 1, num_episodes, loss, exploration_rate,
+                         env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
+                    ))
+        f.close()
         self.model.save('dqn-final.model')
 
     def act(self, observation, reward):
