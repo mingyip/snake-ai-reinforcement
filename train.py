@@ -14,6 +14,7 @@ from keras.optimizers import *
 from snakeai.agent import DeepQNetworkAgent
 from snakeai.gameplay.environment import Environment
 from snakeai.utils.cli import HelpOnFailArgumentParser
+from config import Config
 
 
 def parse_command_line_args(args):
@@ -26,15 +27,14 @@ def parse_command_line_args(args):
 
     parser.add_argument(
         '--level',
-        required=True,
+        required=False,
         type=str,
         help='JSON file containing a level definition.',
     )
     parser.add_argument(
         '--num-episodes',
-        required=True,
+        required=False,
         type=int,
-        default=30000,
         help='The number of episodes to run consecutively.',
     )
 
@@ -99,24 +99,29 @@ def main():
     output_path = os.path.join('outputs', str(timestamp))
     os.makedirs(output_path)
 
+    # Handle input params. load parsed args if specified by users
+    # otherwise load from config file
     parsed_args = parse_command_line_args(sys.argv[1:])
+    level = parsed_args.level if parsed_args.level else Config.LEVEL
+    num_episodes = parsed_args.num_episodes if parsed_args.num_episodes else Config.NUM_EPISODES
 
-    env = create_snake_environment(parsed_args.level, output_path)
-    model = create_dqn_model(env, num_last_frames=4)
+
+    env = create_snake_environment(level, output_path)
+    model = create_dqn_model(env, num_last_frames=Config.NUM_LAST_FRAMES)
 
 
     agent = DeepQNetworkAgent(
         model=model,
-        memory_size=-1,
+        memory_size=Config.MEMORY_SIZE,
         num_last_frames=model.input_shape[1],
         output=output_path
     )
     agent.train(
         env,
-        batch_size=64,
-        num_episodes=parsed_args.num_episodes,
-        checkpoint_freq=parsed_args.num_episodes // 10,
-        discount_factor=0.95
+        batch_size=Config.BATCH_SIZE,
+        num_episodes=num_episodes,
+        checkpoint_freq=num_episodes // 10,
+        discount_factor=Config.DISCOUNT_FACTOR
     )
 
 
