@@ -8,6 +8,7 @@ import sys
 import os
 
 from keras.models import Sequential
+from keras.models import load_model
 from keras.layers import *
 from keras.optimizers import *
 
@@ -36,6 +37,12 @@ def parse_command_line_args(args):
         required=False,
         type=int,
         help='The number of episodes to run consecutively.',
+    )
+    parser.add_argument(
+        '--model',
+        required=False,
+        type=str,
+        help='The pretrained model to continue training.',
     )
 
     return parser.parse_args(args)
@@ -107,7 +114,12 @@ def main():
 
 
     env = create_snake_environment(level, output_path)
-    model = create_dqn_model(env, num_last_frames=Config.NUM_LAST_FRAMES)
+    if parsed_args.model:
+        model = load_model(parsed_args.model)
+    elif Config.USE_PRETRAINED_MODEL:
+        model = load_model(Config.PRETRAINED_MODEL)
+    else:
+        model = create_dqn_model(env, num_last_frames=Config.NUM_LAST_FRAMES)
 
 
     agent = DeepQNetworkAgent(
@@ -121,7 +133,8 @@ def main():
         batch_size=Config.BATCH_SIZE,
         num_episodes=num_episodes,
         checkpoint_freq=num_episodes // 10,
-        discount_factor=Config.DISCOUNT_FACTOR
+        discount_factor=Config.DISCOUNT_FACTOR,
+        exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION)
     )
 
 
