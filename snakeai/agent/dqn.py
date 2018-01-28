@@ -145,7 +145,6 @@ class DeepQNetworkAgent(AgentBase):
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
                       'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:9d}'
-=======
 
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Total Reward {:4d}'
