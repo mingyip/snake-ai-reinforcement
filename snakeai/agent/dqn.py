@@ -145,10 +145,7 @@ class DeepQNetworkAgent(AgentBase):
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
                       'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:9d}'
-
-            summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
-                      'Fruits {:2d} | Timesteps {:4d} | Total Reward {:4d}'
->>>>>>> 1e2b5a0b72216501cc25b1218957fe9092963d7d
+                      
             print(summary.format(
                 episode + 1, num_episodes, loss, exploration_rate,
                 env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
