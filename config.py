@@ -4,7 +4,7 @@ class Config:
     MEMORY_SIZE = -1
     NUM_LAST_FRAMES = 4
     LEVEL = "snakeai/levels/10x10-blank.json"
-    NUM_EPISODES = 100000
+    NUM_EPISODES = 100
     BATCH_SIZE = 64
     DISCOUNT_FACTOR = 0.95
     USE_PRETRAINED_MODEL = False

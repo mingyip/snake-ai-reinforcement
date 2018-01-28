@@ -28,6 +28,8 @@ class DeepQNetworkAgent(AgentBase):
         self.memory = ExperienceReplay((num_last_frames,) + model.input_shape[-2:], model.output_shape[-1], memory_size)
         self.frames = None
         self.output = output
+        self.num_frames = 0
+        self.num_trained_frames = 0
 
     def begin_episode(self):
         """ Reset the agent for a new episode. """
@@ -131,6 +133,7 @@ class DeepQNetworkAgent(AgentBase):
                 # Learn on the batch.
                 if batch:
                     inputs, targets = batch
+                    self.num_trained_frames += targets.size
                     loss += float(self.model.train_on_batch(inputs, targets))
 
             if episode != 0 and checkpoint_freq and (episode % checkpoint_freq) == 0:
@@ -145,16 +148,18 @@ class DeepQNetworkAgent(AgentBase):
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
                       'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:9d}'
-                      
+
             print(summary.format(
                 episode + 1, num_episodes, loss, exploration_rate,
                 env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
+                len(self.memory.memory), self.num_frames, self.num_trained_frames
             ))
             with open(f'{self.output}/training-log.txt', 'a') as f:
                 with redirect_stdout(f):
                     print(summary.format(
                         episode + 1, num_episodes, loss, exploration_rate,
-                         env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
+                        env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
+                        len(self.memory.memory), self.num_frames, self.num_trained_frames
                     ))
             f.close()
 
