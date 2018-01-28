@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from config import Config
 from .entities import Snake, Field, CellType, SnakeAction, ALL_SNAKE_ACTIONS, Point
 
 
@@ -28,7 +29,7 @@ class Environment(object):
                 2 = same as 1, but also write a full log file containing the state of each timestep.
         """
         #foodspeed=0 > no movement, else moves every x timestep
-        self.foodspeed = 0 
+        self.foodspeed = Config.FOODSPEED 
         self.field = Field(level_map=config['field'])
         self.snake = None
         self.fruit = None

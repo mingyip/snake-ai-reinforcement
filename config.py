@@ -12,3 +12,5 @@ class Config:
     MAX_EXPLORATION = 1.0
     MIN_EXPLORATION = 0.1
     SARSA = True
+    #foodspeed =0 no movement. foodspeed =2 food moves one step every 2 timesteps
+    FOODSPEED = 0
