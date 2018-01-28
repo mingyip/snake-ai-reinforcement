@@ -138,7 +138,8 @@ def main():
         num_episodes=num_episodes,
         checkpoint_freq=num_episodes // 10,
         discount_factor=Config.DISCOUNT_FACTOR,
-        exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION)
+        exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION),
+        sarsa = Config.SARSA
     )
 
 

@@ -11,3 +11,4 @@ class Config:
     PRETRAINED_MODEL = "dqn-00090000.model"
     MAX_EXPLORATION = 1.0
     MIN_EXPLORATION = 0.1
+    SARSA = True

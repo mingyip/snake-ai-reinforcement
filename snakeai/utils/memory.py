@@ -47,9 +47,33 @@ class ExperienceReplay(object):
         if 0 < self.memory_size < len(self.memory):
             self.memory.popleft()
 
-    def get_batch(self, model, batch_size, discount_factor=0.9):
-        """ Sample a batch from experience replay. """
+    def remember(self, state, action, reward, state_next,action_next, is_episode_end):
+        """
+        Store a new piece of experience into the replay memory.
+        
+        Args:
+            state: state observed at the previous step.
+            action: action taken at the previous step.
+            reward: reward received at the beginning of the current step.
+            state_next: state observed at the current step. 
+            is_episode_end: whether the episode has ended with the current step.
+        """
+        memory_item = np.concatenate([
+            state.flatten(),
+            np.array(action).flatten(),
+            np.array(reward).flatten(),
+            state_next.flatten(),
+            1 * np.array(is_episode_end).flatten(),
+            np.array(action_next).flatten()
+        ])
+        self.memory.append(memory_item)
+        if 0 < self.memory_size < len(self.memory):
+            self.memory.popleft()
 
+  
+
+    def get_batch(self, model, batch_size, discount_factor=0.9, sarsa=False):
+        """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
         experience = np.array(random.sample(self.memory, batch_size))
         input_dim = np.prod(self.input_shape)
@@ -60,19 +84,30 @@ class ExperienceReplay(object):
         rewards = experience[:, input_dim + 1]
         states_next = experience[:, input_dim + 2:2 * input_dim + 2]
         episode_ends = experience[:, 2 * input_dim + 2]
+        action_next = experience[:,2 * input_dim + 3]
 
         # Reshape to match the batch structure.
         states = states.reshape((batch_size, ) + self.input_shape)
         actions = np.cast['int'](actions)
+        action_next = np.cast['int'](action_next)
         rewards = rewards.repeat(self.num_actions).reshape((batch_size, self.num_actions))
         states_next = states_next.reshape((batch_size, ) + self.input_shape)
         episode_ends = episode_ends.repeat(self.num_actions).reshape((batch_size, self.num_actions))
 
-        # Predict future state-action values.
         X = np.concatenate([states, states_next], axis=0)
         y = model.predict(X)
-        Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
+        # Predict future state-action values.
+        if sarsa:
+            y=y[batch_size:,:]
+            Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
+            Q_next=Q_next.reshape((batch_size, self.num_actions))
+            
 
+        else:
+            #qlearning
+
+            Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
+            
         delta = np.zeros((batch_size, self.num_actions))
         delta[np.arange(batch_size), actions] = 1
 
