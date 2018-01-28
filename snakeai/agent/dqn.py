@@ -125,17 +125,18 @@ class DeepQNetworkAgent(AgentBase):
                     self.num_trained_frames += targets.size
                     loss += float(self.model.train_on_batch(inputs, targets))
 
-            if checkpoint_freq and (episode % checkpoint_freq) == 0:
+            if episode != 0 and checkpoint_freq and (episode % checkpoint_freq) == 0:
                 self.model.save(f'{self.output}/dqn-{episode:08d}.model')
+                self.evaluate(env, trained_episode=episode, num_test_episode=3)
 
             if exploration_rate > min_exploration_rate:
                 exploration_rate -= exploration_decay
             
-            self.num_frames +=env.stats.timesteps_survived
+            self.num_frames += env.stats.timesteps_survived
 
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
-                      'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:7d}'
+                      'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:9d}'
             print(summary.format(
                 episode + 1, num_episodes, loss, exploration_rate,
                 env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
@@ -151,6 +152,7 @@ class DeepQNetworkAgent(AgentBase):
             f.close()
 
         self.model.save(f'{self.output}/dqn-final.model')
+        print('Training End - saved to ' + str(self.output))
 
     def act(self, observation, reward):
         """
@@ -166,3 +168,49 @@ class DeepQNetworkAgent(AgentBase):
         state = self.get_last_frames(observation)
         q = self.model.predict(state)[0]
         return np.argmax(q)
+
+    def evaluate(self, env, trained_episode, num_test_episode):
+        """
+        Play a set of episodes using the specified Snake agent.
+        Use the non-interactive command-line interface and print the summary statistics afterwards.
+        
+        Args:
+            env: an instance of Snake environment.
+            trained_episode (int): trained episodes.
+            num_test_episode (int): the number of episodes to run.
+        """
+
+        fruit_stats = []
+        timestep_stats = []
+        reward_stats = []
+
+        print()
+        print('Playing:')
+
+        for episode in range(num_test_episode):
+            timestep = env.new_episode()
+            self.begin_episode()
+            game_over = False
+
+            while not game_over:
+                action = self.act(timestep.observation, timestep.reward)
+                env.choose_action(action)
+                timestep = env.timestep()
+                game_over = timestep.is_episode_end
+
+            fruit_stats.append(env.stats.fruits_eaten)
+            timestep_stats.append(env.stats.timesteps_survived)
+            reward_stats.append(env.stats.sum_episode_rewards)
+
+            summary = 'Episode {:3d} / {:3d} | Timesteps {:4d} | Fruits {:2d} | Reward {:3d}'
+            print(summary.format(episode + 1, num_test_episode, env.stats.timesteps_survived, +\
+            env.stats.fruits_eaten, env.stats.sum_episode_rewards))
+
+        print('Fruits eaten {:.1f} +/- stddev {:.1f}'.format(np.mean(fruit_stats), np.std(fruit_stats)))
+        print('Reward {:.1f} +/- stddev {:.1f}'.format(np.mean(reward_stats), np.std(reward_stats)))
+        print()
+
+        with open(f'{self.output}/training-stat.txt', 'a') as f:
+                with redirect_stdout(f):
+                    summary = 'Episode {:7d} | Average Timesteps {:4.0f} | Average Fruits {:.1f} | Average Reward {:.1f}' 
+                    print(summary.format(trained_episode, np.mean(timestep_stats), np.mean(fruit_stats), np.mean(reward_stats)))
