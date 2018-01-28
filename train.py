@@ -16,6 +16,7 @@ from snakeai.agent import DeepQNetworkAgent
 from snakeai.gameplay.environment import Environment
 from snakeai.utils.cli import HelpOnFailArgumentParser
 from config import Config
+from shutil import copy
 
 
 def parse_command_line_args(args):
@@ -112,6 +113,9 @@ def main():
     level = parsed_args.level if parsed_args.level else Config.LEVEL
     num_episodes = parsed_args.num_episodes if parsed_args.num_episodes else Config.NUM_EPISODES
 
+    # dump a copy of config and env to outputs
+    copy(level, output_path)
+    copy("config.py", output_path)
 
     env = create_snake_environment(level, output_path)
     if parsed_args.model:
