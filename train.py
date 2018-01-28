@@ -102,16 +102,16 @@ def create_dqn_model(env, num_last_frames):
 
 
 def main():
-    # Create a folder for data output.
-    timestamp = time.strftime('%Y%m%d-%H%M%S')
-    output_path = os.path.join('outputs', str(timestamp))
-    os.makedirs(output_path)
-
     # Handle input params. load parsed args if specified by users
     # otherwise load from config file
     parsed_args = parse_command_line_args(sys.argv[1:])
     level = parsed_args.level if parsed_args.level else Config.LEVEL
     num_episodes = parsed_args.num_episodes if parsed_args.num_episodes else Config.NUM_EPISODES
+
+    # Create a folder for data output.
+    timestamp = time.strftime('%Y%m%d-%H%M%S')
+    output_path = os.path.join('outputs', str(timestamp)+ ' ' + str(num_episodes) + 'epsiodes ' + os.path.basename(level) )
+    os.makedirs(output_path)
 
     # dump a copy of config and env to outputs
     copy(level, output_path)
@@ -136,7 +136,7 @@ def main():
         env,
         batch_size=Config.BATCH_SIZE,
         num_episodes=num_episodes,
-        checkpoint_freq=num_episodes // 10,
+        checkpoint_freq=num_episodes // Config.LOG_FREQUENCY,
         discount_factor=Config.DISCOUNT_FACTOR,
         exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION),
         sarsa = Config.SARSA

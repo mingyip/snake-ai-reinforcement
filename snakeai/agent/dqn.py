@@ -136,9 +136,9 @@ class DeepQNetworkAgent(AgentBase):
                     self.num_trained_frames += targets.size
                     loss += float(self.model.train_on_batch(inputs, targets))
 
-            if episode != 0 and checkpoint_freq and (episode % checkpoint_freq) == 0:
+            if checkpoint_freq and (episode % checkpoint_freq) == 0:
                 self.model.save(f'{self.output}/dqn-{episode:08d}.model')
-                self.evaluate(env, trained_episode=episode, num_test_episode=3)
+                self.evaluate(env, trained_episode=episode, num_test_episode=15)
 
             if exploration_rate > min_exploration_rate:
                 exploration_rate -= exploration_decay
@@ -164,6 +164,7 @@ class DeepQNetworkAgent(AgentBase):
             f.close()
 
         self.model.save(f'{self.output}/dqn-final.model')
+        self.evaluate(env, trained_episode=episode, num_test_episode=15)
         print('Training End - saved to ' + str(self.output))
 
     def act(self, observation, reward):
