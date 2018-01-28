@@ -27,8 +27,6 @@ class DeepQNetworkAgent(AgentBase):
         self.num_last_frames = num_last_frames
         self.memory = ExperienceReplay((num_last_frames,) + model.input_shape[-2:], model.output_shape[-1], memory_size)
         self.frames = None
-        self.num_frames = 0
-        self.num_trained_frames = 0
         self.output = output
 
     def begin_episode(self):
@@ -54,7 +52,7 @@ class DeepQNetworkAgent(AgentBase):
         return np.expand_dims(self.frames, 0)
 
     def train(self, env, num_episodes=1000, batch_size=50, discount_factor=0.9, checkpoint_freq=None,
-              exploration_range=(1.0,0.1), exploration_phase_size=0.5):         #exploration_range=(1.0, 0.1) noisy net
+              exploration_range=(1.0,0.1), exploration_phase_size=0.5, sarsa=False):         #exploration_range=(1.0, 0.1) noisy net
         """
         Train the agent to perform well in the given Snake environment.
         
@@ -104,25 +102,35 @@ class DeepQNetworkAgent(AgentBase):
                 # Act on the environment.
                 env.choose_action(action)
                 timestep = env.timestep()
-
+#-------------------------------------------------------
+#sarsa
                 # Remember a new piece of experience.
                 reward = timestep.reward
                 state_next = self.get_last_frames(timestep.observation)
+
+                if np.random.random() < exploration_rate:
+                    # Explore: take a random action.
+                    action_next = np.random.randint(env.num_actions)
+                else:
+                    # Exploit: take the best known action for this state.
+                    q = self.model.predict(state_next)
+                    action_next = np.argmax(q[0])
+
                 game_over = timestep.is_episode_end
-                experience_item = [state, action, reward, state_next, game_over]
+                experience_item = [state, action, reward, state_next, action_next, game_over]
                 self.memory.remember(*experience_item)
                 state = state_next
-
+ 
                 # Sample a random batch from experience.
                 batch = self.memory.get_batch(
                     model=self.model,
                     batch_size=batch_size,
-                    discount_factor=discount_factor
+                    discount_factor=discount_factor,
+                    sarsa=sarsa
                 )
                 # Learn on the batch.
                 if batch:
                     inputs, targets = batch
-                    self.num_trained_frames += targets.size
                     loss += float(self.model.train_on_batch(inputs, targets))
 
             if episode != 0 and checkpoint_freq and (episode % checkpoint_freq) == 0:
@@ -137,17 +145,20 @@ class DeepQNetworkAgent(AgentBase):
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
                       'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:9d}'
+=======
+
+            summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
+                      'Fruits {:2d} | Timesteps {:4d} | Total Reward {:4d}'
+>>>>>>> 1e2b5a0b72216501cc25b1218957fe9092963d7d
             print(summary.format(
                 episode + 1, num_episodes, loss, exploration_rate,
                 env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
-                len(self.memory.memory), self.num_frames, self.num_trained_frames
             ))
             with open(f'{self.output}/training-log.txt', 'a') as f:
                 with redirect_stdout(f):
                     print(summary.format(
                         episode + 1, num_episodes, loss, exploration_rate,
                          env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
-                         len(self.memory.memory), self.num_frames, self.num_trained_frames
                     ))
             f.close()
 
