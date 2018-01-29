@@ -110,7 +110,7 @@ def main():
 
     # Create a folder for data output.
     timestamp = time.strftime('%Y%m%d-%H%M%S')
-    output_path = os.path.join('outputs', str(timestamp)+ ' ' + str(num_episodes) + 'epsiodes ' + os.path.basename(level) )
+    output_path = os.path.join('outputs', str(timestamp)+ '_' + Config.LEARNING_METHOD + '_' + str(num_episodes) + 'epsiodes_' + os.path.basename(level) )
     os.makedirs(output_path)
 
     # dump a copy of config and env to outputs
@@ -139,7 +139,7 @@ def main():
         checkpoint_freq=num_episodes // Config.LOG_FREQUENCY,
         discount_factor=Config.DISCOUNT_FACTOR,
         exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION),
-        sarsa = Config.SARSA
+        method = Config.LEARNING_METHOD
     )
 
 

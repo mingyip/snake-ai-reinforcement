@@ -72,7 +72,7 @@ class ExperienceReplay(object):
 
   
 
-    def get_batch(self, model, batch_size, discount_factor=0.9, sarsa=False):
+    def get_batch(self, model, batch_size, discount_factor=0.9, method='dqn'):
         """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
         experience = np.array(random.sample(self.memory, batch_size))
@@ -97,15 +97,14 @@ class ExperienceReplay(object):
         X = np.concatenate([states, states_next], axis=0)
         y = model.predict(X)
         # Predict future state-action values.
-        if sarsa:
+        if method == 'sarsa':
             y=y[batch_size:,:]
             Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
             Q_next=Q_next.reshape((batch_size, self.num_actions))
-            
-
+        elif method == 'ddqn':
+            pass
         else:
             #qlearning
-
             Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
             
         delta = np.zeros((batch_size, self.num_actions))
