@@ -129,6 +129,7 @@ class DeepQNetworkAgent(AgentBase):
                     discount_factor=discount_factor,
                     method=method
                 )
+                
                 # Learn on the batch.
                 if batch:
                     inputs, targets = batch

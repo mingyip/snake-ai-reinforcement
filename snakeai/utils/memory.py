@@ -96,15 +96,20 @@ class ExperienceReplay(object):
 
         X = np.concatenate([states, states_next], axis=0)
         y = model.predict(X)
+        
         # Predict future state-action values.
         if method == 'sarsa':
-            y=y[batch_size:,:]
+            y = y[batch_size:,:]
             Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
-            Q_next=Q_next.reshape((batch_size, self.num_actions))
+            Q_next = Q_next.reshape((batch_size, self.num_actions))
         elif method == 'ddqn':
-            pass
+            y = y[batch_size:,:]
+            a = model.predict(states_next)
+            a = a.argmax(axis=1)
+            Q_next = np.choose(a, y.T).repeat(self.num_actions)
+            Q_next = Q_next.reshape((batch_size, self.num_actions))
         else:
-            #qlearning
+            # qlearning
             Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
             
         delta = np.zeros((batch_size, self.num_actions))

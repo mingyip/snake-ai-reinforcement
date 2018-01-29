@@ -4,7 +4,7 @@ class Config:
     MEMORY_SIZE = 100000
     NUM_LAST_FRAMES = 4
     LEVEL = "snakeai/levels/10x10-blank.json"
-    NUM_EPISODES = 50000
+    NUM_EPISODES = 100
     BATCH_SIZE = 64
     DISCOUNT_FACTOR = 0.95
     USE_PRETRAINED_MODEL = False
@@ -12,7 +12,7 @@ class Config:
     MAX_EXPLORATION = 1.0
     MIN_EXPLORATION = 0.1
     # Either sarsa, dqn, ddqn
-    LEARNING_METHOD = "sarsa"
+    LEARNING_METHOD = "ddqn"
     #foodspeed =0 no movement. foodspeed =2 food moves one step every 2 timesteps
     FOODSPEED = 0
-    LOG_FREQUENCY = 100
+    LOG_FREQUENCY = 1
