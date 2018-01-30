@@ -16,6 +16,9 @@ class Point(namedtuple('PointTuple', ['x', 'y'])):
         """ Subtract two points coordinate-wise. """
         return Point(self.x - other.x, self.y - other.y)
 
+    def clone(self):
+        return self + Point(0, 0)
+
 
 class CellType(object):
     """ Defines all types of cells that can be found in the game. """
