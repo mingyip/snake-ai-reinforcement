@@ -83,12 +83,12 @@ class DeepQNetworkAgent(AgentBase):
         exploration_rate = max_exploration_rate
 
         for episode in range(num_episodes):
-            print (env.foodspeed, env.snake)  # , env.fruit, env.initial_snake_length, env.rewards, env.max_step_limit,
+            print (env.foodspeed, env.snake.body)  # , env.fruit, env.initial_snake_length, env.rewards, env.max_step_limit,
             # env.is_game_over, env.output, env.timestep_index, env.current_action, env.stats, env.verbose, env.debug_file,
             # env.stats_file, env.config)
 
             env2 = env.clone()
-            print (env2.foodspeed, env2.snake)  # , env2.fruit, env2.initial_snake_length, env2.rewards,
+            print (env2.foodspeed, env2.snake.body)  # , env2.fruit, env2.initial_snake_length, env2.rewards,
             # env2.max_step_limit,
             # env2.is_game_over, env2.output, env2.timestep_index, env2.current_action, env2.stats, env2.verbose,
             # env2.debug_file,
