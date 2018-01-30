@@ -238,8 +238,8 @@ class Field(object):
     def clone(self):
         cp = Field(level_map=self.level_map)
         cp.level_map = self.level_map
-        if self._cells:
-            cp._cells = self._cells + Point(0, 0)
+        # if self._cells:
+        cp._cells = self._cells + Point(0, 0)
         cp._empty_cells = set(self._empty_cells)
         cp._level_map_to_cell_type = self._level_map_to_cell_type
         cp._cell_type_to_level_map = self._cell_type_to_level_map
