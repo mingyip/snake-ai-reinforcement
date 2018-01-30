@@ -45,6 +45,7 @@ class Environment(object):
         self.verbose = verbose
         self.debug_file = None
         self.stats_file = None
+        self.config = config
 
     def seed(self, value):
         """ Initialize the random state of the environment to make results reproducible. """
@@ -208,6 +209,30 @@ class Environment(object):
         """ True if the snake is still alive, False otherwise. """
         return not self.has_hit_wall() and not self.has_hit_own_body()
 
+    def clone(self):
+        env = Environment(config=self.config, output=self.output)
+        env.foodspeed = self.foodspeed
+        if self.field:
+            env.field = self.field.clone()
+        if self.snake:
+            env.snake = self.snake.clone()
+        if self.fruit:
+            env.fruit = self.fruit.clone()
+
+        env.initial_snake_length = self.initial_snake_length
+        env.rewards = self.rewards
+        env.max_step_limit = self.max_step_limit
+        env.is_game_over = self.is_game_over
+        env.output = self.output
+
+        env.timestep_index = self.timestep_index
+        env.current_action = self.current_action
+        env.stats = self.stats.clone()
+        env.verbose = 0
+        env.debug_file = None
+        env.stats_file = None
+
+        return env
 
 class TimestepResult(object):
     """ Represents the information provided to the agent after each timestep. """
@@ -266,6 +291,16 @@ class EpisodeStatistics(object):
     def to_dataframe(self):
         """ Convert the episode statistics to a Pandas data frame. """
         return pd.DataFrame([self.flatten()])
+
+    def clone(self):
+        cp = EpisodeStatistics()
+
+        cp.timesteps_survived = self.timesteps_survived
+        cp.sum_episode_rewards = self.sum_episode_rewards
+        cp.fruits_eaten = self.fruits_eaten
+        cp.termination_reason = self.termination_reason
+        cp.action_counter = dict(self.action_counter)
+        return cp
 
     def __str__(self):
         return pprint.pformat(self.flatten())

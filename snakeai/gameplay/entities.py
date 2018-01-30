@@ -16,6 +16,9 @@ class Point(namedtuple('PointTuple', ['x', 'y'])):
         """ Subtract two points coordinate-wise. """
         return Point(self.x - other.x, self.y - other.y)
 
+    def clone(self):
+        return self + Point(0, 0)
+
 
 class CellType(object):
     """ Defines all types of cells that can be found in the game. """
@@ -71,10 +74,11 @@ class Snake(object):
             length: An integer specifying the initial length of the snake.
         """
         # Place the snake vertically, heading north.
-        self.body = deque([
-            Point(start_coord.x, start_coord.y + i)
-            for i in range(length)
-        ])
+        if start_coord:
+            self.body = deque([
+                Point(start_coord.x, start_coord.y + i)
+                for i in range(length)
+            ])
         self.direction = SnakeDirection.NORTH
         self.directions = ALL_SNAKE_DIRECTIONS
 
@@ -116,6 +120,13 @@ class Snake(object):
         self.body.appendleft(self.peek_next_move())
         self.body.pop()
 
+    def clone(self):
+        cp = Snake( None, 10)
+        cp.body = deque(list(self.body))
+        cp.direction = self.direction
+        cp.directions = self.directions
+
+        return cp
 
 class Field(object):
     """ Represents the playing field for the Snake game. """
@@ -226,3 +237,14 @@ class Field(object):
         # Support the case when we're chasing own tail.
         if self[new_head] not in (CellType.WALL, CellType.SNAKE_BODY) or new_head == old_tail:
             self[new_head] = CellType.SNAKE_HEAD
+
+    def clone(self):
+        cp = Field(level_map=self.level_map)
+        cp.level_map = self.level_map
+        # if self._cells:
+        cp._cells = self._cells #+ Point(0, 0)
+        cp._empty_cells = set(self._empty_cells)
+        cp._level_map_to_cell_type = self._level_map_to_cell_type
+        cp._cell_type_to_level_map = self._cell_type_to_level_map
+
+        return cp
