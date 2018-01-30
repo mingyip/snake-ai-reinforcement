@@ -81,7 +81,7 @@ class DeepQNetworkAgent(AgentBase):
         max_exploration_rate, min_exploration_rate = exploration_range
         exploration_decay = ((max_exploration_rate - min_exploration_rate) / (num_episodes * exploration_phase_size))
         exploration_rate = max_exploration_rate
-
+        env.copy()
         for episode in range(num_episodes):
             # Reset the environment for the new episode.
             timestep = env.new_episode()
