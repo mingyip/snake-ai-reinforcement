@@ -95,6 +95,7 @@ class DeepQNetworkAgent(AgentBase):
             while not game_over:
                 if np.random.random() < exploration_rate:
                     # Explore: take a random action.
+                    #print('random')
                     action = np.random.randint(env.num_actions)
                 else:
                     # Exploit: take the best known action for this state.
@@ -127,7 +128,8 @@ class DeepQNetworkAgent(AgentBase):
                     model=self.model,
                     batch_size=batch_size,
                     discount_factor=discount_factor,
-                    method=method
+                    method=method,
+                    exploration_rate=exploration_rate
                 )
                 
                 # Learn on the batch.

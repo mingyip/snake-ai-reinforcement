@@ -72,7 +72,7 @@ class ExperienceReplay(object):
 
   
 
-    def get_batch(self, model, batch_size, discount_factor=0.9, method='dqn'):
+    def get_batch(self, model, batch_size,exploration_rate, discount_factor=0.9, method='dqn'):
         """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
         experience = np.array(random.sample(self.memory, batch_size))
@@ -84,22 +84,29 @@ class ExperienceReplay(object):
         rewards = experience[:, input_dim + 1]
         states_next = experience[:, input_dim + 2:2 * input_dim + 2]
         episode_ends = experience[:, 2 * input_dim + 2]
-        action_next = experience[:,2 * input_dim + 3]
+        #action_next = experience[:,2 * input_dim + 3]
 
         # Reshape to match the batch structure.
         states = states.reshape((batch_size, ) + self.input_shape)
         actions = np.cast['int'](actions)
-        action_next = np.cast['int'](action_next)
+        #action_next = np.cast['int'](action_next)
         rewards = rewards.repeat(self.num_actions).reshape((batch_size, self.num_actions))
         states_next = states_next.reshape((batch_size, ) + self.input_shape)
         episode_ends = episode_ends.repeat(self.num_actions).reshape((batch_size, self.num_actions))
 
         X = np.concatenate([states, states_next], axis=0)
         y = model.predict(X)
-        
+        #print(y)
+
+       # print(action_next)
         # Predict future state-action values.
         if method == 'sarsa':
             y = y[batch_size:,:]
+            if np.random.random() < exploration_rate:
+                action_next=np.random.randint(3, size=batch_size)
+            else:
+                action_next = np.argmax(y, axis=1)
+
             Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
             Q_next = Q_next.reshape((batch_size, self.num_actions))
         elif method == 'ddqn':
