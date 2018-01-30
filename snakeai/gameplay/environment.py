@@ -295,8 +295,8 @@ class EpisodeStatistics(object):
     def clone(self):
         cp = EpisodeStatistics()
 
-        cp.timesteps_survived = self.timesteps_survived = 0
-        cp.sum_episode_rewards = self.sum_episode_rewards = 0
+        cp.timesteps_survived = self.timesteps_survived
+        cp.sum_episode_rewards = self.sum_episode_rewards
         cp.fruits_eaten = self.fruits_eaten
         cp.termination_reason = self.termination_reason
         cp.action_counter = dict(self.action_counter)
