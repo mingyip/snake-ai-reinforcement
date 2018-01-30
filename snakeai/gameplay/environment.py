@@ -300,6 +300,7 @@ class EpisodeStatistics(object):
         cp.fruits_eaten = self.fruits_eaten
         cp.termination_reason = self.termination_reason
         cp.action_counter = dict(self.action_counter)
+        return cp
 
     def __str__(self):
         return pprint.pformat(self.flatten())
