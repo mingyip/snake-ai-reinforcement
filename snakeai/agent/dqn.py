@@ -82,12 +82,12 @@ class DeepQNetworkAgent(AgentBase):
         exploration_decay = ((max_exploration_rate - min_exploration_rate) / (num_episodes * exploration_phase_size))
         exploration_rate = max_exploration_rate
         # env = env.clone()
-        print (env.foodspeed)#, env.field, env.snake, env.fruit, env.initial_snake_length, env.rewards, env.max_step_limit,
+        print (env.foodspeed, env.snake)#, env.fruit, env.initial_snake_length, env.rewards, env.max_step_limit,
          # env.is_game_over, env.output, env.timestep_index, env.current_action, env.stats, env.verbose, env.debug_file,
          # env.stats_file, env.config)
 
         env2 = env.clone()
-        print (env2.foodspeed)#, env2.field, env2.snake, env2.fruit, env2.initial_snake_length, env2.rewards,
+        print (env2.foodspeed,  env2.snake)#, env2.fruit, env2.initial_snake_length, env2.rewards,
                # env2.max_step_limit,
                # env2.is_game_over, env2.output, env2.timestep_index, env2.current_action, env2.stats, env2.verbose,
                # env2.debug_file,
