@@ -142,7 +142,8 @@ def main():
         checkpoint_freq=num_episodes // Config.LOG_FREQUENCY,
         discount_factor=Config.DISCOUNT_FACTOR,
         exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION),
-        method = Config.LEARNING_METHOD
+        method = Config.LEARNING_METHOD,
+        multi_step = Config.MULTI_STEP_REWARD
     )
 
 
