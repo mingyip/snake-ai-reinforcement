@@ -156,7 +156,7 @@ class DeepQNetworkAgent(AgentBase):
             #    episode + 1, num_episodes, loss, exploration_rate,
             #    env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
             #    len(self.memory.memory), self.num_frames, self.num_trained_frames
-            ))
+          #  ))
             with open(f'{self.output}/training-log.txt', 'a') as f:
                 with redirect_stdout(f):
                     print(summary.format(
