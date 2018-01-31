@@ -140,6 +140,7 @@ class DeepQNetworkAgent(AgentBase):
                     loss += float(self.model.train_on_batch(inputs, targets))
 
             if checkpoint_freq and (episode % checkpoint_freq) == 0:
+                print(episode + 1, num_episodes)
                 self.model.save(f'{self.output}/dqn-{episode:08d}.model')
                 self.evaluate(env, trained_episode=episode, num_test_episode=15)
 
