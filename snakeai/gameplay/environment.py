@@ -35,7 +35,7 @@ class Environment(object):
         self.fruit = None
         self.initial_snake_length = config['initial_snake_length']
         self.rewards = config['rewards']
-        self.max_step_limit = config.get('max_step_limit', 1000)
+        self.max_step_limit = 500#config.get('max_step_limit', 500)
         self.is_game_over = False
         self.output = output
 
