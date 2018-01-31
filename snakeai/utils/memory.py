@@ -47,7 +47,7 @@ class ExperienceReplay(object):
         if 0 < self.memory_size < len(self.memory):
             self.memory.popleft()
 
-    def remember(self, state, action, reward, state_next,action_next, is_episode_end):
+    def remember(self, state, action, reward, state_next, action_next, is_episode_end):
         """
         Store a new piece of experience into the replay memory.
         
@@ -70,9 +70,7 @@ class ExperienceReplay(object):
         if 0 < self.memory_size < len(self.memory):
             self.memory.popleft()
 
-  
-
-    def get_batch(self, model, batch_size, discount_factor=0.9, method='dqn'):
+    def get_batch(self, model, batch_size, discount_factor=0.9, method='dqn', model_to_udate=0):
         """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
         experience = np.array(random.sample(self.memory, batch_size))
@@ -95,21 +93,20 @@ class ExperienceReplay(object):
         episode_ends = episode_ends.repeat(self.num_actions).reshape((batch_size, self.num_actions))
 
         X = np.concatenate([states, states_next], axis=0)
-        y = model.predict(X)
+        
         
         # Predict future state-action values.
         if method == 'sarsa':
+            y = model[0].predict(X)
             y = y[batch_size:,:]
             Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
             Q_next = Q_next.reshape((batch_size, self.num_actions))
         elif method == 'ddqn':
-            y = y[batch_size:,:]
-            a = model.predict(states_next)
-            a = a.argmax(axis=1)
-            Q_next = np.choose(a, y.T).repeat(self.num_actions)
-            Q_next = Q_next.reshape((batch_size, self.num_actions))
+            y = model[(model_to_udate + 1) % 2].predict(X)
+            Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
         else:
             # qlearning
+            y = model[0].predict(X)
             Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
             
         delta = np.zeros((batch_size, self.num_actions))

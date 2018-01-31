@@ -118,18 +118,21 @@ def main():
     copy("config.py", output_path)
 
     env = create_snake_environment(level, output_path)
+    model = []
     if parsed_args.model:
-        model = load_model(parsed_args.model)
+        model.append(load_model(parsed_args.model))
+        model.append(load_model(parsed_args.model))
     elif Config.USE_PRETRAINED_MODEL:
-        model = load_model(Config.PRETRAINED_MODEL)
+        model.append(load_model(Config.PRETRAINED_MODEL))
+        model.append(load_model(Config.PRETRAINED_MODEL))
     else:
-        model = create_dqn_model(env, num_last_frames=Config.NUM_LAST_FRAMES)
-
+        model.append(create_dqn_model(env, num_last_frames=Config.NUM_LAST_FRAMES))
+        model.append(create_dqn_model(env, num_last_frames=Config.NUM_LAST_FRAMES))
 
     agent = DeepQNetworkAgent(
         model=model,
         memory_size=Config.MEMORY_SIZE,
-        num_last_frames=model.input_shape[1],
+        num_last_frames=model[0].input_shape[1],
         output=output_path
     )
     agent.train(

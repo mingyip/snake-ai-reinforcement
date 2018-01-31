@@ -20,12 +20,12 @@ class DeepQNetworkAgent(AgentBase):
             memory_size (int): memory size limit for experience replay (-1 for unlimited). 
             output (str): folder path to output model files.
         """
-        assert model.input_shape[1] == num_last_frames, 'Model input shape should be (num_frames, grid_size, grid_size)'
-        assert len(model.output_shape) == 2, 'Model output shape should be (num_samples, num_actions)'
+        assert model[0].input_shape[1] == num_last_frames, 'Model input shape should be (num_frames, grid_size, grid_size)'
+        assert len(model[0].output_shape) == 2, 'Model output shape should be (num_samples, num_actions)'
 
         self.model = model
         self.num_last_frames = num_last_frames
-        self.memory = ExperienceReplay((num_last_frames,) + model.input_shape[-2:], model.output_shape[-1], memory_size)
+        self.memory = ExperienceReplay((num_last_frames,) + model[0].input_shape[-2:], model[0].output_shape[-1], memory_size)
         self.frames = None
         self.output = output
         self.num_frames = 0
@@ -88,6 +88,7 @@ class DeepQNetworkAgent(AgentBase):
             self.begin_episode()
             game_over = False
             loss = 0.0
+            model_to_udate = np.random.randint(0, 2) if method == 'ddqn' else 0
 
             # Observe the initial state.
             state = self.get_last_frames(timestep.observation)
@@ -98,7 +99,7 @@ class DeepQNetworkAgent(AgentBase):
                     action = np.random.randint(env.num_actions)
                 else:
                     # Exploit: take the best known action for this state.
-                    q = self.model.predict(state)
+                    q = self.model[model_to_udate].predict(state)
                     action = np.argmax(q[0])
 
                 # Act on the environment.
@@ -114,7 +115,7 @@ class DeepQNetworkAgent(AgentBase):
                     action_next = np.random.randint(env.num_actions)
                 else:
                     # Exploit: take the best known action for this state.
-                    q = self.model.predict(state_next)
+                    q = self.model[model_to_udate].predict(state_next)
                     action_next = np.argmax(q[0])
 
                 game_over = timestep.is_episode_end
@@ -127,17 +128,18 @@ class DeepQNetworkAgent(AgentBase):
                     model=self.model,
                     batch_size=batch_size,
                     discount_factor=discount_factor,
-                    method=method
+                    method=method,
+                    model_to_udate=model_to_udate
                 )
                 
                 # Learn on the batch.
                 if batch:
                     inputs, targets = batch
                     self.num_trained_frames += targets.size
-                    loss += float(self.model.train_on_batch(inputs, targets))
+                    loss += float(self.model[model_to_udate].train_on_batch(inputs, targets))
 
             if checkpoint_freq and (episode % checkpoint_freq) == 0:
-                self.model.save(f'{self.output}/dqn-{episode:08d}.model')
+                self.model[0].save(f'{self.output}/dqn-{episode:08d}.model')
                 self.evaluate(env, trained_episode=episode, num_test_episode=15)
 
             if exploration_rate > min_exploration_rate:
@@ -163,7 +165,7 @@ class DeepQNetworkAgent(AgentBase):
                     ))
             f.close()
 
-        self.model.save(f'{self.output}/dqn-final.model')
+        self.model[0].save(f'{self.output}/dqn-final.model')
         self.evaluate(env, trained_episode=episode, num_test_episode=15)
         print('Training End - saved to ' + str(self.output))
 
@@ -179,7 +181,7 @@ class DeepQNetworkAgent(AgentBase):
             The index of the action to take next.
         """
         state = self.get_last_frames(observation)
-        q = self.model.predict(state)[0]
+        q = self.model[0].predict(state)[0]
         return np.argmax(q)
 
     def evaluate(self, env, trained_episode, num_test_episode):
