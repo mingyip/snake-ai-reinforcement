@@ -96,7 +96,7 @@ class ExperienceReplay(object):
 
         X = np.concatenate([states, states_next], axis=0)
         y = model.predict(X)
-        #print('---------------------')
+   #     print('---------------------')
         #print(y.shape)
 
        # print(action_next)
@@ -104,23 +104,14 @@ class ExperienceReplay(object):
         if method == 'sarsa':
             
             y1 = y[batch_size:]
-            #y = y[batch_size:,:]
-            #print(y)
-            #print(str(y1)+'y1')
-            
-            action_next = np.zeros([batch_size]).astype('int')
-            for i in range(batch_size):
 
-                if np.random.random() < exploration_rate:
-                    #print('rand')
-                    action_next[i]=np.random.randint(3, size=1)
-                    #print(action_next[i])
-                else:
-                    #print('det')
-                    action_next[i] = np.argmax(y1[i,:])
-                    #print(y[i,:] )
-                    #print( action_next[i])
-            #print(action_next)
+            action_next = y1.argmax(axis=1)
+   #         print(action_next)
+            nr_random = round(batch_size*exploration_rate)
+            indices_for_random = np.random.choice(batch_size, size=nr_random) 
+            action_next[indices_for_random]=np.random.randint(3, size=nr_random)
+    #        print(action_next)
+     #       print(indices_for_random)
 
             Q_next = np.choose(action_next, y1.T).repeat(self.num_actions)
             Q_next = Q_next.reshape((batch_size, self.num_actions))
@@ -140,5 +131,6 @@ class ExperienceReplay(object):
         delta[np.arange(batch_size), actions] = 1
         #print(y.shape )
         #print('----------')
+        #we use y[:batch_size] here but set #y = y[batch_size:,:] above
         targets = (1 - delta) * y[:batch_size] + delta * (rewards + discount_factor * (1 - episode_ends) * Q_next)
         return states, targets
