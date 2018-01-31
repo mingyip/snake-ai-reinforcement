@@ -75,6 +75,7 @@ class DeepQNetworkAgent(AgentBase):
                 the percentage of the training process at which
                 the exploration rate should reach its minimum.
         """
+        print('started')
         timestamp = time.strftime('%Y%m%d-%H%M%S')
 
         # Calculate the constant exploration decay speed for each episode.
@@ -151,10 +152,10 @@ class DeepQNetworkAgent(AgentBase):
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
                       'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:9d}'
 
-            print(summary.format(
-                episode + 1, num_episodes, loss, exploration_rate,
-                env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
-                len(self.memory.memory), self.num_frames, self.num_trained_frames
+            #print(summary.format(
+            #    episode + 1, num_episodes, loss, exploration_rate,
+            #    env.stats.fruits_eaten, env.stats.timesteps_survived, env.stats.sum_episode_rewards,
+            #    len(self.memory.memory), self.num_frames, self.num_trained_frames
             ))
             with open(f'{self.output}/training-log.txt', 'a') as f:
                 with redirect_stdout(f):
