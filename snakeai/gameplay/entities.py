@@ -101,6 +101,16 @@ class Snake(object):
         """ Get the point the snake will move to at its next step. """
         return self.head + self.direction
 
+    def peek_next_left(self):
+        """ Get the point the snake will move to left at its next step. """
+        direction_idx = self.directions.index(self.direction)
+        return self.head + self.directions[direction_idx - 1]
+
+    def peek_next_right(self):
+        """ Get the point the snake will move to right at its next step. """
+        direction_idx = self.directions.index(self.direction)
+        return self.head + self.directions[(direction_idx + 1) % len(self.directions)]
+
     def turn_left(self):
         """ At the next step, take a left turn relative to the current direction. """
         direction_idx = self.directions.index(self.direction)

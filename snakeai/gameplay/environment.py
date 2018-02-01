@@ -124,6 +124,34 @@ class Environment(object):
         elif action == SnakeAction.TURN_RIGHT:
             self.snake.turn_right()
 
+    def alltimesteps(self):
+        """Return all states of all actions"""
+
+        old_head = self.snake.head
+        old_tail = self.snake.tail
+        actions = []
+        observations = []
+        actions.append(self.snake.peek_next_move())
+        actions.append(self.snake.peek_next_left())
+        actions.append(self.snake.peek_next_right())
+
+        for action in actions:
+            observation = self.get_observation()
+            if observation[action.y, action.x] == CellType.FRUIT:
+                position = self.field.get_random_empty_cell()
+                observation[position.y, position.x] = CellType.FRUIT
+                observation[action.y, action.x] = CellType.SNAKE_HEAD
+                observation[old_head.y, old_head.x] = CellType.SNAKE_BODY
+            else:
+                observation[action.y, action.x] = CellType.SNAKE_HEAD
+                observation[old_head.y, old_head.x] = CellType.SNAKE_BODY
+                observation[old_tail.y, old_tail.x] = CellType.EMPTY
+
+            observations.append(observation)
+
+        return observations
+
+
     def timestep(self):
         """ Execute the timestep and return the new observable state. """
 
