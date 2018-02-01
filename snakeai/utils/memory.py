@@ -17,6 +17,7 @@ class ExperienceReplay(object):
             memory_size: memory size limit (-1 for unlimited).
         """
         self.memory = collections.deque()
+        self.allactions_memory = collections.deque()
         self.input_shape = input_shape
         self.num_actions = num_actions
         self.memory_size = memory_size
@@ -24,6 +25,16 @@ class ExperienceReplay(object):
     def reset(self):
         """ Erase the experience replay memory. """
         self.memory = collections.deque()
+
+
+    def remember_allactions(self, allactions):
+        """
+        Store a new piece of allactions into the replay memory.
+        """
+        self.allactions_memory.append(allactions)
+        if 0 < self.memory_size < len(self.memory):
+            self.allactions_memory.popleft()
+
 
     def remember(self, state, action, reward, state_next, is_episode_end):
         """
@@ -75,6 +86,8 @@ class ExperienceReplay(object):
         batch_size = min(len(self.memory), batch_size)
         batch_to_select = np.array([random.randint(0, len(self.memory)-1) for i in range(batch_size)])
         experience = np.array([self.memory[i] for i in batch_to_select])
+        if method == 'ddqn':
+            allactions_memory = np.array([self.allactions_memory[i] for i in batch_to_select])
         input_dim = np.prod(self.input_shape)
 
         # Extract [S, a, r, S', end] from experience.
@@ -105,7 +118,14 @@ class ExperienceReplay(object):
             Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
             Q_next = Q_next.reshape((batch_size, self.num_actions))
         elif method == 'ddqn':
-            y = model[(model_to_udate + 1) % 2].predict(X)
+            
+            maxa = model[(model_to_udate + 1) % 2].predict(states_next)
+            maxa = np.argmax(maxa, axis=1)
+            states_next_to_replace = np.array([allactions_memory[i, maxa[i], :, :] for i in range(len(maxa))])
+            states_next[:, -1, :, :] = states_next_to_replace
+
+            X = np.concatenate([states, states_next], axis=0)
+            y = model[model_to_udate].predict(X)
             Q_next = np.max(y[batch_size:], axis=1).repeat(self.num_actions).reshape((batch_size, self.num_actions))
         else:
             # qlearning
