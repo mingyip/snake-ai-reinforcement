@@ -54,7 +54,7 @@ class DeepQNetworkAgent(AgentBase):
         return np.expand_dims(self.frames, 0)
 
     def train(self, env, num_episodes=1000, batch_size=50, discount_factor=0.9, checkpoint_freq=None,
-              exploration_range=(1.0,0.1), exploration_phase_size=0.5, method='dqn'):
+              exploration_range=(1.0,0.1), exploration_phase_size=0.5, method='dqn', multi_step='False'):
         """
         Train the agent to perform well in the given Snake environment.
         
@@ -129,7 +129,8 @@ class DeepQNetworkAgent(AgentBase):
                     batch_size=batch_size,
                     discount_factor=discount_factor,
                     method=method,
-                    model_to_udate=model_to_udate
+                    model_to_udate=model_to_udate,
+                    multi_step=multi_step
                 )
                 
                 # Learn on the batch.
