@@ -7,9 +7,9 @@ class Config:
     NUM_EPISODES = 50000
     BATCH_SIZE = 64
     DISCOUNT_FACTOR = 0.95
-    USE_PRETRAINED_MODEL = False
-    PRETRAINED_MODEL = "dqn-00090000.model"
-    MAX_EXPLORATION = 1.0
+    USE_PRETRAINED_MODEL = True
+    PRETRAINED_MODEL = "outputs/20180131-233536_sarsa_50000epsiodes_10x10-blank.json/dqn-00020000.model"
+    MAX_EXPLORATION = 0.1
     MIN_EXPLORATION = 0.1
     # Either sarsa, dqn, ddqn
     LEARNING_METHOD = "sarsa"
