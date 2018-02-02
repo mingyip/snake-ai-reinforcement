@@ -102,11 +102,6 @@ class DeepQNetworkAgent(AgentBase):
                     q = self.model[model_to_udate].predict(state)
                     action = np.argmax(q[0])
 
-                # Observe all future states
-                if method == "ddqn":
-                    all_state_next = env.alltimesteps()
-                    self.memory.remember_allactions(all_state_next)
-
                 # Act on the environment.
                 env.choose_action(action)
                 timestep = env.timestep()
@@ -137,7 +132,7 @@ class DeepQNetworkAgent(AgentBase):
                     model_to_udate=model_to_udate,
                     multi_step=multi_step
                 )
-
+                
                 # Learn on the batch.
                 if batch:
                     inputs, targets = batch
