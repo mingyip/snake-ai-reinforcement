@@ -54,7 +54,7 @@ class DeepQNetworkAgent(AgentBase):
         return np.expand_dims(self.frames, 0)
 
     def train(self, env, num_episodes=1000, batch_size=50, discount_factor=0.9, checkpoint_freq=None,
-              exploration_range=(1.0,0.1), exploration_phase_size=0.5, method='dqn', multi_step='False'):
+              method='dqn', multi_step='False'):
         """
         Train the agent to perform well in the given Snake environment.
         
@@ -69,20 +69,14 @@ class DeepQNetworkAgent(AgentBase):
                 discount factor (gamma) for computing the value function.
             checkpoint_freq (int):
                 the number of episodes after which a new model checkpoint will be created.
-            exploration_range (tuple):
-                a (max, min) range specifying how the exploration rate should decay over time. 
-            exploration_phase_size (float):
-                the percentage of the training process at which
-                the exploration rate should reach its minimum.
         """
         timestamp = time.strftime('%Y%m%d-%H%M%S')
 
-        # Calculate the constant exploration decay speed for each episode.
-        max_exploration_rate, min_exploration_rate = exploration_range
-        exploration_decay = ((max_exploration_rate - min_exploration_rate) / (num_episodes * exploration_phase_size))
-        exploration_rate = max_exploration_rate
+        episode = 0
+        while episode != num_episodes:
+            episode += 1
+            exploration_rate = 1 - 0.0000856 * episode if episode < 10000 else (1 / np.log(episode))
 
-        for episode in range(num_episodes):
             # Reset the environment for the new episode.
             timestep = env.new_episode()
             self.begin_episode()
@@ -143,9 +137,6 @@ class DeepQNetworkAgent(AgentBase):
                 self.model[0].save(f'{self.output}/dqn-{episode:08d}.model')
                 self.evaluate(env, trained_episode=episode, num_test_episode=15)
 
-            if exploration_rate > min_exploration_rate:
-                exploration_rate -= exploration_decay
-            
             self.num_frames += env.stats.timesteps_survived
 
             summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \

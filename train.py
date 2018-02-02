@@ -139,9 +139,8 @@ def main():
         env,
         batch_size=Config.BATCH_SIZE,
         num_episodes=num_episodes,
-        checkpoint_freq=num_episodes // Config.LOG_FREQUENCY,
+        checkpoint_freq=100,
         discount_factor=Config.DISCOUNT_FACTOR,
-        exploration_range=(Config.MAX_EXPLORATION, Config.MIN_EXPLORATION),
         method = Config.LEARNING_METHOD,
         multi_step = Config.MULTI_STEP_REWARD
     )
