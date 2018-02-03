@@ -13,7 +13,6 @@ from keras import regularizers, constraints
 def noisy_dense(inputs, units, bias_shape, b_i=None, activation=tf.nn.relu, noisy_distribution='factorised'):
     def f(e_list):
         return tf.multiply(tf.sign(e_list), tf.pow(tf.abs(e_list), 0.5))
-    # 使用tf.layers，注意：先flatten
     # dense1 = tf.layers.dense(tf.contrib.layers.flatten(relu5), activation=tf.nn.relu, units=50)
     if not isinstance(inputs, ops.Tensor):
         inputs = ops.convert_to_tensor(inputs, dtype='float')
@@ -30,7 +29,7 @@ def noisy_dense(inputs, units, bias_shape, b_i=None, activation=tf.nn.relu, nois
     if noisy_distribution == 'independent':
         weights += tf.multiply(tf.random_normal(shape=w_noise.shape), w_noise)
     elif noisy_distribution == 'factorised':
-        noise_1 = f(tf.random_normal(tf.TensorShape([flatten_shape, 1]), dtype=tf.float32))  # 注意是列向量形式，方便矩阵乘法
+        noise_1 = f(tf.random_normal(tf.TensorShape([flatten_shape, 1]), dtype=tf.float32))
         noise_2 = f(tf.random_normal(tf.TensorShape([1, units]), dtype=tf.float32))
         weights += tf.multiply(noise_1 * noise_2, w_noise)
     dense = tf.matmul(inputs, weights)

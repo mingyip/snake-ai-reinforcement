@@ -1,3 +1,6 @@
+this code was just used to train sarsa.
+
+
 # snake-ai-reinforcement
 AI for Snake game trained from pixels using Deep Reinforcement Learning (DQN).
 
