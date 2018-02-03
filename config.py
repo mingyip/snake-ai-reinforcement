@@ -11,7 +11,8 @@ class Config:
     PRETRAINED_MODEL = "dqn-00000000.model"
     # Either sarsa, dqn, ddqn
     LEARNING_METHOD = "dqn"
-    MULTI_STEP_REWARD = True
+    MULTI_STEP_REWARD = False
     MULTI_STEP_SIZE = 5
+    PRIORITIZED_REPLAY = True
     #foodspeed =0 no movement. foodspeed =2 food moves one step every 2 timesteps
     FOODSPEED = 0

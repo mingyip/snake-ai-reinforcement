@@ -20,11 +20,14 @@ class ExperienceReplay(object):
         self.input_shape = input_shape
         self.num_actions = num_actions
         self.memory_size = memory_size
-
+        self.prioritized_memory = Tree(memory_size)
 
     def reset(self):
         """ Erase the experience replay memory. """
         self.memory = collections.deque()
+
+    def remember_prioritized_ratio(self, ratio):
+        self.prioritized_memory.update_leaf(ratio)
 
     def remember(self, state, action, reward, state_next, is_episode_end):
         """
@@ -74,7 +77,10 @@ class ExperienceReplay(object):
     def get_batch(self, model, batch_size, discount_factor=0.9, method='dqn', model_to_udate=0, multi_step='False'):
         """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
-        batch_to_select = np.array([random.randint(0, len(self.memory)-1) for i in range(batch_size)])
+        if Config.PRIORITIZED_REPLAY:
+            batch_to_select = self.prioritized_memory.get_random_indexset(batch_size)
+        else:
+            batch_to_select = np.array([random.randint(0, len(self.memory)-1) for i in range(batch_size)])
         experience = np.array([self.memory[i] for i in batch_to_select])
         input_dim = np.prod(self.input_shape)
 
@@ -141,3 +147,101 @@ class ExperienceReplay(object):
             multistep_reward.append(reward)
 
         return np.array(multistep_reward).repeat(self.num_actions).reshape((batch_size, self.num_actions))
+
+
+class Tree(object):
+    def __init__(self, num_nodes):
+        self.num_layers = int(np.ceil(np.log(num_nodes) / np.log(2)))
+        self.root = self.Node(isRoot=True)
+        self.add_leafs(self.root, self.num_layers, 0)
+        self.max_count = num_nodes
+        self.current_count = 0
+
+    def add_leafs(self, leaf, num_layers, start_index):
+        if num_layers == 0:
+            leaf.isLeaf = True
+            leaf.root_index = start_index
+            return
+
+        leaf.left = self.Node(leaf)
+        leaf.right = self.Node(leaf)
+
+        self.add_leafs(leaf.left, num_layers-1, start_index)
+        self.add_leafs(leaf.right, num_layers-1, start_index+np.power(2, num_layers-1))
+
+    def update_leaf(self, value):
+        index_to_update = (self.current_count) % self.max_count
+        self.current_count += 1
+
+        self.update_leaf_with_index(index_to_update, value)
+
+    def update_leaf_with_index(self, index_to_update, value, leaf=None, num_layers=-1, start_index=0):
+        if leaf is None:
+            leaf = self.root
+            num_layers = self.num_layers
+            start_index = 0
+
+        if leaf.isLeaf:
+            assert index_to_update == leaf.root_index, 'index_to_update should be equal to leaf.root_index'
+            diff = value - leaf.value
+            leaf.value = value
+            return diff
+
+        if index_to_update < start_index + np.power(2, num_layers-1):
+            diff = self.update_leaf_with_index(index_to_update, value, leaf.left, num_layers-1, start_index)
+        else:
+            diff = self.update_leaf_with_index(index_to_update, value, leaf.right, num_layers-1, start_index + np.power(2, num_layers-1))
+
+        leaf.value += diff
+        return diff
+
+    def get_random_indexset(self, batch_size):
+        if self.root.value == 0:
+            return [0 for i in range(batch_size)]
+
+        random_set = [np.random.randint(0, self.root.value) for i in range(batch_size)]
+        return np.array([self.get_index_by_value_index(i) for i in random_set])
+
+    def get_index_by_value_index(self, value_index, leaf=None):
+        if leaf is None:
+            leaf = self.root
+
+        if leaf.isLeaf:
+            return leaf.root_index
+            
+        if value_index < leaf.left.value:
+            return self.get_index_by_value_index(value_index, leaf.left)
+        else:
+            return self.get_index_by_value_index(value_index-leaf.left.value, leaf.right) 
+
+    def print_all_leaf(self, leaf=None, num_layers=-1):
+        if leaf is None:
+            leaf = self.root
+            num_layers = self.num_layers
+            print()
+        
+        if leaf.isLeaf:
+            print(leaf.root_index, leaf.value)
+            return
+
+        self.print_all_leaf(leaf.left, num_layers-1)
+        self.print_all_leaf(leaf.right, num_layers-1)
+
+    class Node(object):
+        def __init__(self, parent=None, isRoot=False):
+            self.parent = parent
+            self.left = None
+            self.right = None
+            self.value = 0
+            self.root_index = None
+            self.isRoot = isRoot
+            self.isLeaf = False
+
+        def __init__(self, parent=None, isRoot=False):
+            self.parent = parent
+            self.left = None
+            self.right = None
+            self.value = 0
+            self.root_index = None
+            self.isRoot = isRoot
+            self.isLeaf = False
