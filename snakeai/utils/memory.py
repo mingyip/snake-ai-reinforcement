@@ -2,7 +2,7 @@ import collections
 import random
 
 import numpy as np
-
+from config import Config
 
 class ExperienceReplay(object):
     """ Represents the experience replay memory that can be randomly sampled. """
@@ -20,6 +20,7 @@ class ExperienceReplay(object):
         self.input_shape = input_shape
         self.num_actions = num_actions
         self.memory_size = memory_size
+
 
     def reset(self):
         """ Erase the experience replay memory. """
@@ -118,7 +119,7 @@ class ExperienceReplay(object):
         targets = (1 - delta) * y[:batch_size] + delta * (rewards + discount_factor * (1 - episode_ends) * Q_next)
         return states, targets
 
-    def get_multistep_reward(self, batch_to_select, discount_factor, batch_size, num_step=10):
+    def get_multistep_reward(self, batch_to_select, discount_factor, batch_size, num_step=Config.MULTI_STEP_SIZE):
         multistep_reward = []
 
         input_dim = np.prod(self.input_shape)
