@@ -108,8 +108,8 @@ class ExperienceReplay(object):
         # Predict future state-action values.
         if method == 'sarsa':
             y = model[0].predict(X)
-            y = y[batch_size:,:]
-            Q_next = np.choose(action_next, y.T).repeat(self.num_actions)
+            y1 = y[batch_size:,:]
+            Q_next = np.choose(action_next, y1.T).repeat(self.num_actions)
             Q_next = Q_next.reshape((batch_size, self.num_actions))
         elif method == 'ddqn':
             y = model[(model_to_udate + 1) % 2].predict(X)

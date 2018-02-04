@@ -1,3 +1,9 @@
+
+we got the code for the enviroment from https://github.com/YuriyGuts/snake-ai-reinforcement
+we mostly modified utils/memory.py, agent/dqn.py and train.py to implement DDQN, SARSA, multistep, priorized replay and dueling network.
+
+
+
 # snake-ai-reinforcement
 AI for Snake game trained from pixels using Deep Reinforcement Learning (DQN).
 
