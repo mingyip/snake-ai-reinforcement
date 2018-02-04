@@ -13,6 +13,8 @@ class Config:
     LEARNING_METHOD = "dqn"
     MULTI_STEP_REWARD = False
     MULTI_STEP_SIZE = 5
-    PRIORITIZED_REPLAY = True
+    PRIORITIZED_REPLAY = False
+    PRIORITIZED_RATING = 2
+    DUEL_NETWORK = True
     #foodspeed =0 no movement. foodspeed =2 food moves one step every 2 timesteps
     FOODSPEED = 0

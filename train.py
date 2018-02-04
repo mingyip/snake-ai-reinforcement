@@ -9,6 +9,7 @@ import os
 
 from keras.models import Sequential
 from keras.models import load_model
+from keras.models import Model
 from keras.layers import *
 from keras.optimizers import *
 
@@ -72,28 +73,31 @@ def create_dqn_model(env, num_last_frames):
 
     model = Sequential()
 
-    # Convolutions.
-    model.add(Conv2D(
-        16,
-        kernel_size=(3, 3),
-        strides=(1, 1),
-        data_format='channels_first',
-        input_shape=(num_last_frames, ) + env.observation_shape
-    ))
-    model.add(Activation('relu'))
-    model.add(Conv2D(
-        32,
-        kernel_size=(3, 3),
-        strides=(1, 1),
-        data_format='channels_first'
-    ))
-    model.add(Activation('relu'))
+    if Config.DUEL_NETWORK:
+        input_layer = Input(shape = (num_last_frames, ) + env.observation_shape)
+        conv1 = Convolution2D(16, kernel_size=(3, 3), strides=(1, 1), data_format='channels_first', activation='relu')(input_layer)
+        conv2 = Convolution2D(32, kernel_size=(3, 3), strides=(1, 1), data_format='channels_first', activation='relu')(conv1)
+        flatten = Flatten()(conv2)
 
-    # Dense layers.
-    model.add(Flatten())
-    model.add(Dense(256))
-    model.add(Activation('relu'))
-    model.add(Dense(env.num_actions))
+        fc1 = Dense(256)(flatten)
+        advantage = Dense(env.num_actions)(fc1)
+        fc2 = Dense(256)(flatten)
+        value = Dense(1)(fc2)
+
+        policy = merge([advantage, value], mode = lambda x: x[0]-K.mean(x[0])+x[1], output_shape = (env.num_actions,))
+        model = Model(input=[input_layer], output=[policy])
+    else:
+        # Convolutions.
+        model.add(Conv2D(16, kernel_size=(3, 3), strides=(1, 1), data_format='channels_first', input_shape=(num_last_frames, ) + env.observation_shape))
+        model.add(Activation('relu'))
+        model.add(Conv2D( 2, kernel_size=(3, 3), strides=(1, 1), data_format='channels_first'))
+        model.add(Activation('relu'))
+
+        # Dense layers.
+        model.add(Flatten())
+        model.add(Dense(256))
+        model.add(Activation('relu'))
+        model.add(Dense(env.num_actions))
 
     model.summary()
     model.compile(RMSprop(), 'MSE')
