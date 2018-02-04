@@ -122,6 +122,7 @@ class DeepQNetworkAgent(AgentBase):
                 batch = self.memory.get_batch(
                     model=self.model,
                     batch_size=batch_size,
+                    exploration_rate = exploration_rate,
                     discount_factor=discount_factor,
                     method=method,
                     model_to_udate=model_to_udate,

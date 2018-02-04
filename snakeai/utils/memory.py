@@ -74,7 +74,7 @@ class ExperienceReplay(object):
         if 0 < self.memory_size < len(self.memory):
             self.memory.popleft()
 
-    def get_batch(self, model, batch_size, discount_factor=0.9, method='dqn', model_to_udate=0, multi_step='False'):
+    def get_batch(self, model, batch_size, exploration_rate, discount_factor=0.9, method='dqn', model_to_udate=0, multi_step='False'):
         """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
         if Config.PRIORITIZED_REPLAY:
@@ -108,7 +108,16 @@ class ExperienceReplay(object):
         # Predict future state-action values.
         if method == 'sarsa':
             y = model[0].predict(X)
-            y1 = y[batch_size:,:]
+            y1 = y[batch_size:]
+
+            action_next = y1.argmax(axis=1)
+   #         print(action_next)
+            nr_random = round(batch_size*exploration_rate)
+            indices_for_random = np.random.choice(batch_size, size=nr_random) 
+            action_next[indices_for_random]=np.random.randint(3, size=nr_random)
+    #        print(action_next)
+     #       print(indices_for_random)
+
             Q_next = np.choose(action_next, y1.T).repeat(self.num_actions)
             Q_next = Q_next.reshape((batch_size, self.num_actions))
         elif method == 'ddqn':
