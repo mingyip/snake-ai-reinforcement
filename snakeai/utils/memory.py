@@ -74,13 +74,16 @@ class ExperienceReplay(object):
         if 0 < self.memory_size < len(self.memory):
             self.memory.popleft()
 
-    def get_batch(self, model, batch_size, exploration_rate, discount_factor=0.9, method='dqn', model_to_udate=0, multi_step='False'):
+    def get_batch(self, model, batch_size, exploration_rate, discount_factor=0.9, method='dqn', model_to_udate=0, multi_step='False', get_latest_replay=False):
         """ Sample a batch from experience replay. """
         batch_size = min(len(self.memory), batch_size)
         if Config.PRIORITIZED_REPLAY:
             batch_to_select = self.prioritized_memory.get_random_indexset(batch_size)
         else:
             batch_to_select = np.array([random.randint(0, len(self.memory)-1) for i in range(batch_size)])
+        if get_latest_replay:
+            batch_size = 1
+            batch_to_select = [-1]
         experience = np.array([self.memory[i] for i in batch_to_select])
         input_dim = np.prod(self.input_shape)
 
