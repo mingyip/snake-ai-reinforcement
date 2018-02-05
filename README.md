@@ -1,6 +1,8 @@
 
 we got the code for the enviroment from https://github.com/YuriyGuts/snake-ai-reinforcement
-we mostly modified utils/memory.py, agent/dqn.py and train.py to implement DDQN, SARSA, multistep, priorized replay and dueling network.
+we highly modified utils/memory.py, agent/dqn.py and train.py to implement DDQN, SARSA, multistep, priorized replay and dueling network.
+we also created a logging system and made changes to the gameplay and enviroment
+we did hyperparametersearch mostly for the memory size of experience replay, stepsize of multistep and different decays of the exploration rate
 
 
 
