@@ -76,7 +76,7 @@ class DeepQNetworkAgent(AgentBase):
         episode = 0
         while episode != num_episodes:
             episode += 1
-            exploration_rate = 1 - 0.0000856 * episode if episode < 10000 else (1 / np.log(episode))
+            exploration_rate = 1 - 0.00009 * episode if episode < 10000 else (10 / np.sqrt(episode))
 
             # Reset the environment for the new episode.
             timestep = env.new_episode()
@@ -161,7 +161,7 @@ class DeepQNetworkAgent(AgentBase):
 
             self.num_frames += env.stats.timesteps_survived
 
-            summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.2f} | ' + \
+            summary = 'Episode {:5d}/{:5d} | Loss {:8.4f} | Exploration {:.3f} | ' + \
                       'Fruits {:2d} | Timesteps {:4d} | Reward {:4d} | ' + \
                       'Memory {:6d} | Total Timesteps {:6d} | Trained Frames{:11d}'
 
