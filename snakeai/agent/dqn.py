@@ -153,7 +153,7 @@ class DeepQNetworkAgent(AgentBase):
                         inputs, targets = batch
                         self.num_trained_frames += targets.size
                         replay_loss = float(self.model[model_to_udate].train_on_batch(inputs, targets))
-                        self.memory.remember_prioritized_ratio(np.ceil(100*np.power(replay_loss + 1, Config.PRIORITIZED_RATING)))
+                        self.memory.remember_prioritized_ratio(np.ceil(np.power(replay_loss + 1, Config.PRIORITIZED_RATING)))
 
             if checkpoint_freq and (episode % checkpoint_freq) == 0:
                 self.model[0].save(f'{self.output}/dqn-{episode:08d}.model')

@@ -14,7 +14,7 @@ class Config:
     MULTI_STEP_REWARD = False
     MULTI_STEP_SIZE = 5
     PRIORITIZED_REPLAY = False
-    PRIORITIZED_RATING = 0.5
+    PRIORITIZED_RATING = 1
     DUEL_NETWORK = False
     #foodspeed =0 no movement. foodspeed =2 food moves one step every 2 timesteps
     FOODSPEED = 0
