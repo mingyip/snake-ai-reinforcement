@@ -75,14 +75,16 @@ $ make play-human
 ## Hyperparameter Tuning - Multi-step Stepsize
 <p align="Center">
   <img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/Different_stepsizes_of_multi_step.png" width="800px">
-The performance decreases as the stepsize gets bigger. This maybe due to larger multi-step stepsize could hinder the learning ability of the neural network. With larger stepsize, the neural network is foreced to consider future rewards which might slower the learning progress. 
+<p>
+  The performance decreases as the stepsize gets bigger. This maybe due to larger multi-step stepsize could hinder the learning ability of the neural network. With larger stepsize, the neural network is foreced to consider future rewards which might slower the learning progress. 
+</p>
 
 ## Visualizing the Value Function
 <p align="Center">
   <img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/Maximal_expected_reward.png" width="800px">
 </p>
-<p> 
-  The graph shows how the expected maximal reward increases or decreases during one game. Note that every time the expected maximal reward goes down, it means that the snake ate a fruit at the last step. Because the fruit is further away at the next step the expected reward goes down. 
+<p align="Left"> 
+The graph shows how the expected maximal reward increases or decreases during one game. Note that every time the expected maximal reward goes down, it means that the snake ate a fruit at the last step. Because the fruit is further away at the next step the expected reward goes down. 
 </p>
 
 ## Findings
