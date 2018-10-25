@@ -11,17 +11,26 @@ AI for Snake game trained from pixels using Deep Reinforcement Learning (DQN).
 
 Contains the tools for training and observing the behavior of the agents, either in CLI or GUI mode.
 
-<img src="https://cloud.githubusercontent.com/assets/2750531/24808769/cc825424-1bc5-11e7-816f-7320f7bda2cf.gif" width="300px"><img src="https://cloud.githubusercontent.com/assets/2750531/24810302/9e4d6e86-1bca-11e7-869b-fc282cd600bb.gif" width="300px">
+<p align="Center">
+  <img src="https://cloud.githubusercontent.com/assets/2750531/24808769/cc825424-1bc5-11e7-816f-7320f7bda2cf.gif" width="300px">
+  <img src="https://cloud.githubusercontent.com/assets/2750531/24810302/9e4d6e86-1bca-11e7-869b-fc282cd600bb.gif" width="300px">
+</p>
 
 We implemented a sarsa method, 4 dpn extensions and the combined version. and compared to the results metioned in paper "Rainbow: Combining Improvements in Deep Reinforcement Learning" by DeepMind.
 
 ## Methods Implemented
 - Sarsa
+  <p align="Center"><img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/saras.png" width="500px"></p>
 - Double Q function
+  <p align="Center"><img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/double_Q_function.png" width="600px"></p>
 - Multi-step rewards
+  <p align="Center"><img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/Multi_step_rewards.png" width="280px"></p>
 - Prioritized replay
+  <p align="Center"><img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/prioritized_replay.png" width="600px"></p>
 - Dueling networks
+  <p align="Center"><img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/dueling_networks.png" width="600px"></p>
 - Hybrid Method
+
 
 ## Requirements
 All components have been written in Python 3.6. Training on GPU is supported but disabled by default. If you have CUDA and would like to use a GPU, use the GPU version of TensorFlow by changing `tensorflow` to `tensorflow-gpu` in the requirements file.
@@ -72,11 +81,32 @@ To play on your own using the arrow keys (I know you want to), run:
 $ make play-human
 ```
 
+## Method Analysis
+<p align="Center">
+  <img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/Fruits_eaten_by_different_methods.png" width="800px">
+</p>
+<p>
+  Similar to the find out in the Deepmind paper[2], we find out most methods improve the learning ability on Deep Reinforcement Learning (DQN). 
+</p>
+<p>
+  The multi-step stepsize extension may suffer from future rewards which slower the network learning progress. The combined method (combined with extension Double Q function, Multi-step rewards, Prioritized replay, Dueling networks) outperforms the basic dpn and achieves the best performance among all methods. 
+</p>
+<p>
+  It is worth mentioning that we highly recommend using Dueling networks architecture. It improves the performance a lot while comparing the basic dpn only slight changes need to be modified in the output layers.
+</p>
+
+## Hyperparameter Tuning - Experience Replay Memory Size
+<p align="Center">
+  <img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/Fruits_eaten_with_increase_of_memory.png" width="800px">
+</p>
+Our model is based on one important assumption which is the process is a Markov process, the big memory size, where we sample the batches from, can help us get rid of the dependence of the data.
+
 ## Hyperparameter Tuning - Multi-step Stepsize
 <p align="Center">
   <img src="https://raw.githubusercontent.com/mingyip/snake-ai-reinforcement/master/result/Different_stepsizes_of_multi_step.png" width="800px">
+</p>
 <p>
-  The performance decreases as the stepsize gets bigger. This maybe due to larger multi-step stepsize could hinder the learning ability of the neural network. With larger stepsize, the neural network is foreced to consider future rewards which might slower the learning progress. 
+  The performance decreases as the stepsize gets bigger. This maybe due to larger multi-step stepsize could hinder the learning ability of the neural network. With large step size, the neural network is forced to consider future rewards which might slower the learning progress.
 </p>
 
 ## Visualizing the Value Function
