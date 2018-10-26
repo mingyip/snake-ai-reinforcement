@@ -6,7 +6,7 @@ AI for Snake game trained from pixels using Deep Reinforcement Learning (DQN).
   <img src="https://cloud.githubusercontent.com/assets/2750531/24810302/9e4d6e86-1bca-11e7-869b-fc282cd600bb.gif" width="300px">
 </p>
 
-We implemented a sarsa method, 4 dqn extensions and the combined dqn version based on the previous basic dpn which was implemented by Yuriyguts (2017) [4]. We also compared to the results metioned in paper "Rainbow: Combining Improvements in Deep Reinforcement Learning" by DeepMind.
+We implemented a sarsa method, 4 dqn extensions and the combined dqn version based on the previous basic dpn engine which was implemented by Yuriyguts (2017) [4]. We also compared to the results metioned in paper "Rainbow: Combining Improvements in Deep Reinforcement Learning" by DeepMind.
 
 ## Methods Implemented
 - Sarsa
