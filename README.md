@@ -1,22 +1,12 @@
-
-we got the code for the enviroment from https://github.com/YuriyGuts/snake-ai-reinforcement
-we highly modified utils/memory.py, agent/dqn.py and train.py to implement DDQN, SARSA, multistep, priorized replay and dueling network.
-we also created a logging system and made changes to the gameplay and enviroment
-we did hyperparametersearch mostly for the memory size of experience replay, stepsize of multistep and different decays of the exploration rate
-
-
-
 ## snake-ai-reinforcement
 AI for Snake game trained from pixels using Deep Reinforcement Learning (DQN).
-
-Contains the tools for training and observing the behavior of the agents, either in CLI or GUI mode.
 
 <p align="Center">
   <img src="https://cloud.githubusercontent.com/assets/2750531/24808769/cc825424-1bc5-11e7-816f-7320f7bda2cf.gif" width="300px">
   <img src="https://cloud.githubusercontent.com/assets/2750531/24810302/9e4d6e86-1bca-11e7-869b-fc282cd600bb.gif" width="300px">
 </p>
 
-We implemented a sarsa method, 4 dpn extensions and the combined version. and compared to the results metioned in paper "Rainbow: Combining Improvements in Deep Reinforcement Learning" by DeepMind.
+We implemented a sarsa method, 4 dqn extensions and the combined dqn version based on the previous basic dpn which was implemented by Yuriyguts (2017) [4]. We also compared to the results metioned in paper "Rainbow: Combining Improvements in Deep Reinforcement Learning" by DeepMind.
 
 ## Methods Implemented
 - Sarsa
@@ -133,6 +123,15 @@ The graph shows how the expected maximal reward increases or decreases during on
       <li>The performance decreases as the stepsize gets bigger.</li>
     </ul>
 </dl> 
+
+## Check Out Our Poster
+<p>
+  <img src="https://github.com/mingyip/snake-ai-reinforcement/blob/master/result/poster.jpg" alt="Rainbow dqn Poster" width="128" border="0">
+</p>
+
+[[image]](https://github.com/mingyip/snake-ai-reinforcement/blob/master/result/poster.jpg)
+[[pdf]](https://github.com/mingyip/snake-ai-reinforcement/blob/master/result/poster.pdf)
+
 
 ## References
 <p> [1] Fuertes, R. A (2017). Machine Learning Agents: Making Video Games Smarter With AI. Retrieved
